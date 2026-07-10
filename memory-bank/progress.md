@@ -35,19 +35,23 @@
   corretto cercando le righe `Cairn-*` ovunque nel messaggio invece di passare da
   `git interpret-trailers` — 2026-07-10, ridogfoodato con successo sul commit di fix (39771a9)
 
+- [x] Primo dispatch multi-agente (§7): test automatici da Codex (`cmd/cairn/main_test.go`,
+  7 test case, tutti verdi) e RFC-0001 da Gemini (`memory-bank/rfc/0001-livello-di-conoscenza.md`)
+  rivisti, committati (nessuno dei due aveva committato da solo — fatto dal coordinatore) e
+  mergiati in `main` con `--no-ff`, nessun conflitto — 2026-07-10. Note operative sul processo
+  in `activeContext.md` § Handoff chiuso
+
 ## In corso
 
-- [ ] Nessun task di codice aperto al momento sul worktree principale (`main`). In parallelo:
-  Codex sta scrivendo test automatici, Gemini sta scrivendo RFC-0001 — vedi Handoff in
-  `activeContext.md`
+- [ ] Nessun task di codice aperto al momento
 
 ## Da fare (prossimo)
 
-- [ ] Review + merge dei due sottotask in corso (Codex: test; Gemini: RFC-0001) quando
-  segnalano di aver finito
+- [ ] Push su `main` (non ancora fatto)
 - [ ] Estensione IDE (VS Code) per rendere le note visibili accanto al codice — richiede
   prima di decidere come una nota referenzia file/righe specifici (oggi lo schema ha solo
-  `text`/`tags`); scoping rimandato a un Plan dedicato, dopo l'RFC-0001
+  `text`/`tags`); scoping rimandato a un Plan dedicato
+- [ ] Eventuali limature di stile su RFC-0001 (attribuzione, tono) se l'utente le vuole
 
 ## Deferred (non riproporre senza un motivo nuovo)
 

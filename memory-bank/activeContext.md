@@ -4,58 +4,47 @@
 
 ## Cosa si sta facendo ora
 
-Due filoni in parallelo: (1) Codex e Gemini stanno lavorando sui due sottotask del Handoff
-sotto; (2) sul worktree principale ho implementato la cattura automatica da commit (hook
-`post-commit` + trailer `Cairn-Note: true`), vedi `progress.md` per i dettagli.
+Handoff multi-agente chiuso (vedi sotto): sottotask di Codex e Gemini rivisti, committati e
+mergiati in `main`. Nessun task di codice aperto al momento.
 
 ## Ultima decisione presa
 
-Cattura automatica scelta come "solo commit marcati esplicitamente con un trailer", non
-mirror di ogni commit — mirrorare tutto sarebbe rumore (git già versiona ogni commit), non
-conoscenza (§1). PR-based capture e un comando `cairn hook install` restano deferred (vedi
-`techContext.md`).
+Cattura automatica da commit scelta come "solo commit marcati esplicitamente con un trailer",
+non mirror di ogni commit (§1: sarebbe rumore, non conoscenza). PR-based capture e un comando
+`cairn hook install` restano deferred (vedi `techContext.md`).
 
-## Handoff — 2026-07-10, da Claude Code (coordinatore) a Codex e Gemini (worker)
+## Handoff chiuso — 2026-07-10, Codex e Gemini → main
 
-**Scoperta operativa importante prima del dispatch:** il repo Cairn era registrato in Orca
-con `kind: "folder"` invece di `"git"` (probabilmente perché aggiunto a Orca prima del primo
-`git init`/commit) — `orca worktree create --repo id:dee56f51-...` su questo repo NON crea un
-vero worktree isolato, riusa la stessa directory della sessione principale (verificato:
-`git worktree list` non mostrava nulla di nuovo dopo la creazione). **Se in futuro si rifà un
-dispatch su Cairn tramite Orca, verificare prima `orca repo show --repo id:dee56f51-8...` →
-se `kind` è ancora `"folder"`, non usare la scorciatoia `orca worktree create --repo id:...`:
-creare invece il worktree git a mano (`git worktree add ...`) e registrarlo come repo
-separato con `orca repo add --path <nuovo-path>`** (questo rileva correttamente `kind: git`).
-Non ho tentato di correggere la registrazione originale del repo Cairn in Orca — nessun
-comando CLI visto lo permette senza rimuoverlo e riaggiungerlo, azione che avrebbe effetti
-sugli altri worktree Orca già collegati a quell'id repo, non presa senza chiedere.
+Primo dispatch multi-agente del progetto, portato a termine. Note operative per il prossimo:
 
-**Sottotask 1 — Codex**, worktree git isolato `/Users/giuseppetauro/Development/Cairn-codex-tests`
-(branch `codex/cairn-tests`, repo Orca id `7adac43e-fadd-466d-8c46-8de3e57e7a4d`, terminale
-`term_1c08a39b-b642-41d0-a301-2d68dc6a530b`): scrivere `cmd/cairn/main_test.go` (solo stdlib
-`testing`) che copre gli scenari già validati a mano su `add`/`log`, tag, filtro, e il fix
-sull'ordine dei flag. Istruito a non toccare `memory-bank/`, non fare push/merge, e a
-proporre un piano breve prima di scrivere codice (sta seguendo la pipeline correttamente).
-
-**Sottotask 2 — Gemini**, worktree git isolato
-`/Users/giuseppetauro/Development/Cairn-gemini-rfc0001` (branch `gemini/rfc-0001`, repo Orca
-id `83b94d08-0be8-4fb6-8dac-0f7fad54564b`, terminale `term_dfc50609-69be-4970-af8b-250459edf0fc`):
-bozza di `memory-bank/rfc/0001-livello-di-conoscenza.md`, basata su AGENTS.md + memory-bank +
-`.cairn/log.jsonl` come prova concreta vissuta. Istruito a non toccare codice né
-`activeContext.md`/`progress.md`, non fare push/merge.
-
-**Cosa NON toccare finché questo Handoff è aperto:** i due branch `codex/cairn-tests` e
-`gemini/rfc-0001` e le rispettive directory sono di competenza esclusiva dell'agente
-assegnato. Il merge in `main` resta un gate umano (§7) — nessuno dei due deve farlo da solo.
+- **Bug Orca**: il repo Cairn è registrato con `kind: "folder"` (probabilmente perché
+  aggiunto a Orca prima del primo commit) — `orca worktree create --repo id:dee56f51-...` NON
+  isola davvero, riusa la stessa directory. Verificare `orca repo show --repo id:dee56f51-...`
+  prima di un prossimo dispatch: se `kind` è ancora `"folder"`, creare il worktree a mano
+  (`git worktree add`) e registrarlo con `orca repo add --path <nuovo-path>` (rileva `git`
+  correttamente). Non risolvibile via CLI (nessun comando per correggere `kind` in place).
+- **Codex e Gemini non fanno commit da soli** anche quando esplicitamente istruiti a "non
+  fare push né merge" — hanno scritto i file nel worktree ma lasciato tutto non tracciato. Il
+  coordinatore ha dovuto committare lui stesso su ciascun branch prima del merge. Da tenere a
+  mente per il prossimo dispatch: non assumere che "non toccare main" implichi "committa sul
+  tuo branch" — vanno probabilmente istruiti esplicitamente a committare.
+- **Codex non aveva una shell disponibile** nel suo ambiente (MCP `shell-tool` fallito
+  all'avvio) — non ha potuto eseguire `go build`/`go vet`/`go test` da solo. Il coordinatore
+  ha validato al posto suo prima del merge. Verificare se è una limitazione sistemica di
+  questo setup Orca+Codex o solo di questa sessione, prima di assumere di poterlo evitare.
+- Merge fatti (`--no-ff`, uno per sottotask): `cmd/cairn/main_test.go` (7 test, tutti verdi
+  dopo build/vet/test del coordinatore) e `memory-bank/rfc/0001-livello-di-conoscenza.md`.
+  Nessun conflitto. Worktree e branch locali rimossi dopo il merge
+  (`git worktree remove` + `git branch -d`). Le due voci repo temporanee in Orca
+  (`7adac43e-...`, `83b94d08-...`) non sono rimovibili da CLI (nessun `orca repo rm`) — restano
+  come voci stale che puntano a directory ormai cancellate, da pulire a mano dalla UI se dà
+  fastidio, non urgente.
 
 ## Prossimo passo
 
-Rivedere l'output di Codex e Gemini quando segnalano di aver finito (o su richiesta
-dell'utente), poi valutare merge in `main` — con conferma esplicita dell'utente, come da gate
-del §7. Dopo il merge, il coordinatore (io) aggiorna `activeContext.md`/`progress.md` e può
-rimuovere i due worktree (`git worktree remove ...` + `orca repo` cleanup).
+Nessun task di codice aperto. In sospeso: push su `main` (non ancora fatto, da confermare),
+ed eventuali limature di stile sull'RFC-0001 (attribuzione, tono) se l'utente le vuole.
 
 ## Blocchi/domande aperte
 
-- Nessuno sullo stato del repo principale. (`.cairn/` è versionato dal 2026-07-10, vedi commit
-  precedenti.) Aperto solo l'esito dei due sottotask in corso sopra.
+- Nessuno.
