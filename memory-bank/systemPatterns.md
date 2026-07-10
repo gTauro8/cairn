@@ -17,7 +17,9 @@
 
 | Data | Decisione | Alternative scartate | Motivazione |
 |---|---|---|---|
-| 2026-07-10 | Saltare la validazione manuale pre-codice e passare direttamente all'implementazione in Go | Validazione manuale di 1 settimana (pianificata e poi non eseguita) | [DA COMPILARE — perché hai deciso di saltarla? è la riga più importante di questa tabella] |
+| 2026-07-10 | Saltare la validazione manuale pre-codice e passare direttamente all'implementazione in Go | Validazione manuale di 1 settimana (pianificata e poi non eseguita) | Semplice impazienza con il processo: dopo settimane su naming, prompt architetturale e governance, la spinta a vedere codice reale ha prevalso sul piano originale. Il vincolo del §2 di `AGENTS.md` resta comunque valido — lo si verifica ora osservando il prodotto reale invece che con un test a parte. |
+
+
 
 ## Anti-pattern noti in questo progetto (cosa NON fare)
 
