@@ -13,18 +13,28 @@
 - [x] Bootstrap del modulo Go: `go.mod`, `cmd/cairn/main.go`, comandi `cairn add`/`cairn log`
   su log append-only `.cairn/log.jsonl` (cwd esatta, no walk-up) — 2026-07-10, build e test
   funzionale validati manualmente in scratch dir
+- [x] Tag opzionali sulle note: `cairn add --tags a,b,c "testo"` (campo `tags` additivo,
+  omitempty), `cairn log --tag x` per filtrare — 2026-07-10, retrocompatibilità con le righe
+  JSONL senza `tags` validata manualmente in scratch dir
 
 ## In corso
 
-- [ ] Nessun task di codice aperto al momento — in attesa di definire il secondo incremento
+- [ ] Nessun task di codice aperto al momento — in attesa di uso reale o nuova richiesta
 
 ## Da fare (prossimo)
 
-- [ ] Compilare la motivazione della decisione di saltare la validazione (systemPatterns.md —
-  in corso lato utente/Giuseppe, non toccare)
-- [ ] Decidere il secondo incremento su `cairn` (uso reale di `add` su una nota vera, o
-  estensione di `add`/`log`)
+- [ ] Decidere il prossimo incremento su `cairn` (uso reale di `add`/`log --tag` su note vere
+  del progetto, o altra estensione)
 - [ ] RFC-0001: "perché il software ha bisogno di un livello di conoscenza"
+
+## Deferred (non riproporre senza un motivo nuovo)
+
+- Relazioni tipizzate tra note (es. "supersede", "deprecated by"): rimandate il 2026-07-10.
+  Motivo: richiedono riferirsi all'ID di una nota esistente, quindi un lookup che rallenta la
+  cattura rispetto a v0/v0.1 — segnale contro secondo il vincolo del §2 di `AGENTS.md`. Da
+  riprendere solo quando il dogfooding mostra un bisogno reale e concreto (es. una nota che
+  *effettivamente* ne sostituisce un'altra e la mancanza del collegamento crea confusione),
+  non per completezza dello schema.
 
 ## Bug noti
 

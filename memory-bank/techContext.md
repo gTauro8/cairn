@@ -16,7 +16,8 @@
 - Test: `go test ./...` (nessun test automatizzato ancora presente — solo validazione manuale
   finora, vedi `progress.md`)
 - Lint: `go vet ./...` (nessun linter esterno introdotto ancora)
-- Run locale: `go run ./cmd/cairn <add|log> [testo]`
+- Run locale: `go run ./cmd/cairn add [--tags a,b,c] <testo>` oppure
+  `go run ./cmd/cairn log [--tag x]`
 
 ## Restrizioni ambientali
 

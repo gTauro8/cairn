@@ -5,7 +5,9 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"flag"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -15,9 +17,10 @@ const stateDir = ".cairn"
 const logFile = stateDir + "/log.jsonl"
 
 type entry struct {
-	ID   string `json:"id"`
-	TS   string `json:"ts"`
-	Text string `json:"text"`
+	ID   string   `json:"id"`
+	TS   string   `json:"ts"`
+	Text string   `json:"text"`
+	Tags []string `json:"tags,omitempty"`
 }
 
 func main() {
@@ -31,7 +34,7 @@ func main() {
 	case "add":
 		err = cmdAdd(os.Args[2:])
 	case "log":
-		err = cmdLog()
+		err = cmdLog(os.Args[2:])
 	default:
 		usage()
 		os.Exit(1)
@@ -44,11 +47,18 @@ func main() {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "usage: cairn add <text> | cairn log")
+	fmt.Fprintln(os.Stderr, "usage: cairn add [--tags a,b,c] <text> | cairn log [--tag x]")
 }
 
 func cmdAdd(args []string) error {
-	text := strings.TrimSpace(strings.Join(args, " "))
+	fs := flag.NewFlagSet("add", flag.ContinueOnError)
+	fs.SetOutput(io.Discard)
+	tagsFlag := fs.String("tags", "", "tag separati da virgola")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+
+	text := strings.TrimSpace(strings.Join(fs.Args(), " "))
 	if text == "" {
 		return fmt.Errorf("add richiede un testo non vuoto")
 	}
@@ -61,6 +71,7 @@ func cmdAdd(args []string) error {
 		ID:   genID(),
 		TS:   time.Now().UTC().Format(time.RFC3339),
 		Text: text,
+		Tags: parseTags(*tagsFlag),
 	}
 	line, err := json.Marshal(e)
 	if err != nil {
@@ -80,7 +91,14 @@ func cmdAdd(args []string) error {
 	return nil
 }
 
-func cmdLog() error {
+func cmdLog(args []string) error {
+	fs := flag.NewFlagSet("log", flag.ContinueOnError)
+	fs.SetOutput(io.Discard)
+	tagFilter := fs.String("tag", "", "mostra solo le note con questo tag")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+
 	f, err := os.Open(logFile)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -96,9 +114,39 @@ func cmdLog() error {
 		if err := json.Unmarshal(scanner.Bytes(), &e); err != nil {
 			return fmt.Errorf("riga corrotta in %s: %w", logFile, err)
 		}
+		if *tagFilter != "" && !hasTag(e.Tags, *tagFilter) {
+			continue
+		}
 		fmt.Printf("[%s] %s\n", e.TS, e.Text)
 	}
 	return scanner.Err()
+}
+
+func parseTags(raw string) []string {
+	if raw == "" {
+		return nil
+	}
+	seen := make(map[string]bool)
+	var tags []string
+	for _, part := range strings.Split(raw, ",") {
+		t := strings.ToLower(strings.TrimSpace(part))
+		if t == "" || seen[t] {
+			continue
+		}
+		seen[t] = true
+		tags = append(tags, t)
+	}
+	return tags
+}
+
+func hasTag(tags []string, target string) bool {
+	target = strings.ToLower(strings.TrimSpace(target))
+	for _, t := range tags {
+		if t == target {
+			return true
+		}
+	}
+	return false
 }
 
 func genID() string {
