@@ -57,10 +57,16 @@ questa feature (f7b5f89) ha perso la nota per questo motivo, prima del fix (3977
 
 ## Restrizioni ambientali
 
-- [Es. versione minima runtime, OS supportati, rete disponibile in sandbox, ecc.]
+- Sviluppato/validato su macOS (darwin/arm64), Go 1.25.3. Nessuna dipendenza da rete per il
+  funzionamento di `cairn` stesso (solo build/toolchain Go richiedono l'ambiente di sviluppo
+  standard). Non ancora testato su Linux/Windows — nessun uso di API specifiche di macOS nel
+  codice, ma non verificato attivamente.
+- L'hook `post-commit` richiede una shell POSIX (`/bin/sh`) e i comandi `git`/`grep` standard.
 
 ## Debito tecnico noto
 
 | Elemento | Impatto | Quando affrontarlo |
 |---|---|---|
-| Nessun test automatico (solo validazione manuale) | Rischio di regressioni silenziose sugli incrementi futuri | Prima del terzo incremento funzionale, o appena la validazione manuale richiede più di ~2 minuti |
+| Nessun linter esterno oltre `go vet` | Possibili incoerenze di stile non catturate | Se il codice cresce oltre un singolo file, valutare `golangci-lint` |
+| Nessuna verifica automatica multi-OS (solo macOS validato) | Un comportamento specifico di macOS potrebbe passare inosservato | Se/quando il progetto acquisisce contributor su altri OS |
+| `cairn hook install` non esiste: setup dell'hook è un `git config` manuale per clone | Rischio che l'hook resti disattivato su una macchina/clone senza che nessuno se ne accorga | Se il progetto acquisisce più contributor/macchine (vedi `techContext.md` § Cattura automatica) |
