@@ -1,0 +1,42 @@
+#!/bin/sh
+# Cattura automatica di conoscenza da commit marcati col trailer "Cairn-Note: true".
+# Convenzione documentata in memory-bank/techContext.md. Non deve MAI far fallire il
+# commit: qualunque problema qui produce solo un warning su stderr, mai un errore fatale.
+
+MSG=$(git log -1 --format=%B)
+TRAILERS=$(printf '%s\n' "$MSG" | git interpret-trailers --parse 2>/dev/null)
+
+NOTE_FLAG=$(printf '%s\n' "$TRAILERS" | grep -i '^Cairn-Note:' | sed 's/^[^:]*: *//' | tr '[:upper:]' '[:lower:]')
+if [ "$NOTE_FLAG" != "true" ] && [ "$NOTE_FLAG" != "yes" ]; then
+    exit 0
+fi
+
+CAIRN_BIN=""
+if command -v cairn >/dev/null 2>&1; then
+    CAIRN_BIN="cairn"
+else
+    REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+    if [ -n "$REPO_ROOT" ] && [ -x "$REPO_ROOT/cairn" ]; then
+        CAIRN_BIN="$REPO_ROOT/cairn"
+    fi
+fi
+
+if [ -z "$CAIRN_BIN" ]; then
+    echo "post-commit: cairn non trovato (ne' su PATH ne' in <repo>/cairn) - nota non catturata" >&2
+    exit 0
+fi
+
+SUBJECT=$(git log -1 --format=%s)
+SHORT_HASH=$(git log -1 --format=%h)
+TEXT="$SUBJECT (commit $SHORT_HASH)"
+
+TAGS=$(printf '%s\n' "$TRAILERS" | grep -i '^Cairn-Tags:' | sed 's/^[^:]*: *//' | head -1)
+if [ -n "$TAGS" ]; then
+    TAGS="$TAGS,git"
+else
+    TAGS="git"
+fi
+
+"$CAIRN_BIN" add --tags "$TAGS" "$TEXT" || echo "post-commit: cairn add fallito - nota non catturata" >&2
+
+exit 0

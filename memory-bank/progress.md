@@ -21,16 +21,27 @@
   deriva i nomi dei flag noti da `fs.VisitAll` (si auto-aggiorna se in futuro si aggiungono
   altri flag ad `add`). Validati: ordine corretto invariato, ordine sbagliato ora errore +
   exit 1, nessun falso positivo su testo libero con un trattino dentro
+- [x] Cattura automatica da commit: hook `post-commit` (`.githooks/post-commit`) genera una
+  nota `cairn` quando il commit ha il trailer `Cairn-Note: true` (testo = subject + hash
+  corto, tag = `Cairn-Tags:` + tag automatico `git`); commit senza trailer restano silenziosi
+  (niente mirror di ogni commit). Setup: `git config core.hooksPath .githooks`. Dettagli e
+  convenzione in `techContext.md`. Validati in scratch clone: commit con trailer → nota
+  corretta; commit senza trailer → nessuna nota; binario `cairn` assente → warning, commit
+  comunque riuscito — 2026-07-10
 
 ## In corso
 
-- [ ] Nessun task di codice aperto al momento — in attesa di uso reale o nuova richiesta
+- [ ] Nessun task di codice aperto al momento sul worktree principale (`main`). In parallelo:
+  Codex sta scrivendo test automatici, Gemini sta scrivendo RFC-0001 — vedi Handoff in
+  `activeContext.md`
 
 ## Da fare (prossimo)
 
-- [ ] Decidere il prossimo incremento su `cairn` (uso reale di `add`/`log --tag` su note vere
-  del progetto, o altra estensione)
-- [ ] RFC-0001: "perché il software ha bisogno di un livello di conoscenza"
+- [ ] Review + merge dei due sottotask in corso (Codex: test; Gemini: RFC-0001) quando
+  segnalano di aver finito
+- [ ] Estensione IDE (VS Code) per rendere le note visibili accanto al codice — richiede
+  prima di decidere come una nota referenzia file/righe specifici (oggi lo schema ha solo
+  `text`/`tags`); scoping rimandato a un Plan dedicato, dopo l'RFC-0001
 
 ## Deferred (non riproporre senza un motivo nuovo)
 

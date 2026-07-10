@@ -4,13 +4,16 @@
 
 ## Cosa si sta facendo ora
 
-Primo dispatch multi-agente reale del progetto (§7): Claude Code (coordinatore) ha assegnato
-due sottotask indipendenti a Codex e Gemini via Orca, 2026-07-10. Vedi blocco Handoff sotto.
+Due filoni in parallelo: (1) Codex e Gemini stanno lavorando sui due sottotask del Handoff
+sotto; (2) sul worktree principale ho implementato la cattura automatica da commit (hook
+`post-commit` + trailer `Cairn-Note: true`), vedi `progress.md` per i dettagli.
 
 ## Ultima decisione presa
 
-Fix minimo e mirato sul bug ordine flag (vedi `progress.md`) chiuso in precedenza in questa
-sessione. Relazioni tipizzate tra note restano rimandate (vedi `progress.md` § Deferred).
+Cattura automatica scelta come "solo commit marcati esplicitamente con un trailer", non
+mirror di ogni commit — mirrorare tutto sarebbe rumore (git già versiona ogni commit), non
+conoscenza (§1). PR-based capture e un comando `cairn hook install` restano deferred (vedi
+`techContext.md`).
 
 ## Handoff — 2026-07-10, da Claude Code (coordinatore) a Codex e Gemini (worker)
 
