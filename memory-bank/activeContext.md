@@ -18,4 +18,12 @@
 
 ## Blocchi/domande aperte
 
-- [...]
+(nessuno al momento)
+
+## Validazione in corso (dal [DATA DI OGGI])
+
+- Durata: 1 settimana, revisione a fine periodo.
+- Criterio di successo: la cattura avviene spontaneamente, senza promemoria.
+- Criterio di fallimento da tracciare attivamente: ogni volta che ti accorgi di NON aver
+  catturato una decisione quando l'hai presa — scrivila comunque, in ritardo, e annota quanti
+  giorni/ore sono passati. Questo dato conta più delle decisioni catturate al momento giusto.
