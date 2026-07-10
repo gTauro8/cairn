@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "CMD=$(cat | jq -r '.tool_input.command // empty'); echo \"$CMD\" | grep -qE 'rm -rf|DROP TABLE|TRUNCATE|push --force|reset --hard' && { echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"additionalContext\":\"Comando distruttivo bloccato dalla policy di progetto (.claude/rules/security.md)\"}}'; exit 2; } || exit 0",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
