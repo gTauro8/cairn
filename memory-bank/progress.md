@@ -16,6 +16,11 @@
 - [x] Tag opzionali sulle note: `cairn add --tags a,b,c "testo"` (campo `tags` additivo,
   omitempty), `cairn log --tag x` per filtrare — 2026-07-10, retrocompatibilità con le righe
   JSONL senza `tags` validata manualmente in scratch dir
+- [x] Fix bug ordine flag: `cairn add "testo" --tags a,b` ora fallisce rumorosamente (nessuna
+  riga scritta) invece di ingoiare `--tags` nel testo — 2026-07-10, via `misplacedFlag()` che
+  deriva i nomi dei flag noti da `fs.VisitAll` (si auto-aggiorna se in futuro si aggiungono
+  altri flag ad `add`). Validati: ordine corretto invariato, ordine sbagliato ora errore +
+  exit 1, nessun falso positivo su testo libero con un trattino dentro
 
 ## In corso
 
@@ -38,6 +43,6 @@
 
 ## Bug noti
 
-| Bug | Severità | Workaround |
-|---|---|---|
-| `cairn add "testo" --tags a,b`: se `--tags` è messo *dopo* il testo posizionale, `flag.Parse` si ferma al primo argomento non-flag e `--tags a,b` finisce silenziosamente dentro il testo della nota, senza errore e senza applicare i tag (trovato in dogfooding reale il 2026-07-10) | Bassa/media: nessuna perdita di dati, ma tag persi senza avviso — attrito di cattura silenzioso, il tipo di cosa che il vincolo del §2 chiede di prendere sul serio | Mettere sempre `--tags` prima del testo: `cairn add --tags a,b "testo"` |
+- Nessuno aperto. (Il bug sull'ordine di `--tags` — vedi `.cairn/log.jsonl` per la nota
+  originale e quella di chiusura — è stato corretto il 2026-07-10: ora `cairn add "testo"
+  --tags a,b` fallisce con errore invece di ingoiare il flag nel testo.)

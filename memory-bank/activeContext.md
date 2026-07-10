@@ -4,24 +4,23 @@
 
 ## Cosa si sta facendo ora
 
-Pausa consapevole sugli incrementi guidati da spec: dogfooding reale di `cairn add`/`log` sul
-repo stesso, iniziato il 2026-07-10 (una nota già inserita a mano dall'utente, quattro
-aggiunte da me durante la sessione). Vedi `.cairn/log.jsonl` per le note reali e
-`progress.md` per il bug trovato nell'uso vero.
+Corretto in Plan→Act→Validate→Sync il bug di dogfooding sull'ordine dei flag: `cairn add
+"testo" --tags a,b` ora fallisce rumorosamente (nessuna riga scritta) invece di ingoiare
+`--tags` nel testo. Vedi `progress.md` per i dettagli e i criteri validati.
 
 ## Ultima decisione presa
 
-Relazioni tipizzate tra note restano rimandate (vedi `progress.md` § Deferred). Nessuna
-nuova decisione architetturale oggi: la sessione è passata da "costruire il terzo
-incremento" a "usare i primi due sul serio e vedere cosa si rompe".
+Fix minimo e mirato (rilevare flag noti finiti tra i positional via `fs.VisitAll` ed errore
+esplicito) invece di un parser permutante fatto in casa o di rendere `--text` obbligatorio —
+entrambe le alternative scartate per complessità sproporzionata o regressione sul caso comune
+(nota senza tag). Relazioni tipizzate tra note restano comunque rimandate (vedi `progress.md`
+§ Deferred), non toccate in questo incremento.
 
 ## Prossimo passo
 
-Continuare a usare `cairn add`/`cairn log` per note reali nei prossimi giorni, senza pilotare
-l'uso con una spec. Il bug di ordine dei flag (`--tags` dopo il testo, vedi `progress.md` §
-Bug noti) resta aperto e non corretto di proposito — è un segnale da dogfooding, non un
-incidente da patchare subito. Decidere se/come correggerlo solo quando emergono altri segnali
-simili o quando l'utente lo richiede esplicitamente in Plan mode.
+Nessun task di codice aperto. Riprendere il dogfooding reale di `cairn add`/`cairn log`, o
+aprire un nuovo giro di Plan su uno degli altri due candidati già in backlog (prossimo
+incremento funzionale su `cairn`, oppure RFC-0001) quando l'utente decide quale.
 
 ## Blocchi/domande aperte
 

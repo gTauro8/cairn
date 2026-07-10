@@ -58,6 +58,10 @@ func cmdAdd(args []string) error {
 		return err
 	}
 
+	if tok, ok := misplacedFlag(fs); ok {
+		return fmt.Errorf("%q dopo il testo non ha effetto: mettilo prima, es. cairn add --tags a,b \"testo\"", tok)
+	}
+
 	text := strings.TrimSpace(strings.Join(fs.Args(), " "))
 	if text == "" {
 		return fmt.Errorf("add richiede un testo non vuoto")
@@ -120,6 +124,30 @@ func cmdLog(args []string) error {
 		fmt.Printf("[%s] %s\n", e.TS, e.Text)
 	}
 	return scanner.Err()
+}
+
+// misplacedFlag rileva un flag noto del FlagSet finito tra gli argomenti
+// posizionali: succede quando l'utente lo scrive dopo il testo, e flag.Parse
+// si ferma al primo token non-flag lasciando tutto il resto in fs.Args().
+func misplacedFlag(fs *flag.FlagSet) (string, bool) {
+	names := make(map[string]bool)
+	fs.VisitAll(func(f *flag.Flag) {
+		names[f.Name] = true
+	})
+
+	for _, tok := range fs.Args() {
+		name := strings.TrimLeft(tok, "-")
+		if name == tok {
+			continue // nessun trattino iniziale: non può essere un flag
+		}
+		if eq := strings.IndexByte(name, '='); eq >= 0 {
+			name = name[:eq]
+		}
+		if names[name] {
+			return tok, true
+		}
+	}
+	return "", false
 }
 
 func parseTags(raw string) []string {
