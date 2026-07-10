@@ -4,14 +4,16 @@
 
 ## Cosa si sta facendo ora
 
-Handoff multi-agente chiuso (vedi sotto): sottotask di Codex e Gemini rivisti, committati e
-mergiati in `main`. Nessun task di codice aperto al momento.
+Sessione pushata su `main` (`040a87a..f0f1ac7`), memory bank compilata per intero, e appena
+aggiunto il campo `files` alle note (prerequisito per l'estensione IDE rimandata) — vedi
+`progress.md` per i dettagli. Nessun task di codice aperto al momento.
 
 ## Ultima decisione presa
 
-Cattura automatica da commit scelta come "solo commit marcati esplicitamente con un trailer",
-non mirror di ogni commit (§1: sarebbe rumore, non conoscenza). PR-based capture e un comando
-`cairn hook install` restano deferred (vedi `techContext.md`).
+`files` referenzia solo file interi, mai righe/range specifici: un numero di riga si sposta a
+ogni refactor e diventerebbe silenziosamente sbagliato — rischio di freschezza (§2) peggiore
+del non avere il riferimento affatto. Popolato manualmente via `--files` su `cairn add`, e in
+automatico dall'hook `post-commit` (i file del commit sono per definizione il contesto).
 
 ## Handoff chiuso — 2026-07-10, Codex e Gemini → main
 
@@ -42,8 +44,9 @@ Primo dispatch multi-agente del progetto, portato a termine. Note operative per 
 
 ## Prossimo passo
 
-Nessun task di codice aperto. In sospeso: push su `main` (non ancora fatto, da confermare),
-ed eventuali limature di stile sull'RFC-0001 (attribuzione, tono) se l'utente le vuole.
+Nessun task di codice aperto. In sospeso: eventuali limature di stile sull'RFC-0001
+(attribuzione, tono) se l'utente le vuole; scoping dell'estensione IDE quando richiesto (ora
+sbloccato da `files`).
 
 ## Blocchi/domande aperte
 

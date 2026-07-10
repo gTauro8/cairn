@@ -42,6 +42,11 @@ else
     TAGS="git"
 fi
 
-"$CAIRN_BIN" add --tags "$TAGS" "$TEXT" || echo "post-commit: cairn add fallito - nota non catturata" >&2
+# I file cambiati nel commit sono per definizione il contesto della nota:
+# a differenza di --tags/--files su "cairn add" manuale, qui l'inferenza
+# automatica e' sicura, non un'ipotesi rischiosa.
+FILES=$(git diff-tree --no-commit-id --name-only -r "$SHORT_HASH" 2>/dev/null | tr '\n' ',' | sed 's/,$//')
+
+"$CAIRN_BIN" add --tags "$TAGS" --files "$FILES" "$TEXT" || echo "post-commit: cairn add fallito - nota non catturata" >&2
 
 exit 0

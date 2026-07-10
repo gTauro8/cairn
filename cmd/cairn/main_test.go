@@ -25,6 +25,47 @@ func TestAddWithoutTagsOmitsTagsKey(t *testing.T) {
 	if _, ok := got["tags"]; ok {
 		t.Fatalf("entry contains tags key: %s", line)
 	}
+	if _, ok := got["files"]; ok {
+		t.Fatalf("entry contains files key: %s", line)
+	}
+}
+
+func TestAddParsesAndDeduplicatesFilesPreservingCase(t *testing.T) {
+	inTempDir(t)
+
+	if err := cmdAdd([]string{"--files", " a.go, B.go ,a.go", "testo"}); err != nil {
+		t.Fatalf("cmdAdd() error = %v", err)
+	}
+
+	line := readSingleLogLine(t, logFile)
+	var got entry
+	if err := json.Unmarshal([]byte(line), &got); err != nil {
+		t.Fatalf("json.Unmarshal() error = %v", err)
+	}
+	want := []string{"a.go", "B.go"}
+	if !reflect.DeepEqual(got.Files, want) {
+		t.Fatalf("files = %v, want %v", got.Files, want)
+	}
+}
+
+func TestLogFiltersByFileAndExcludesEntriesWithoutFiles(t *testing.T) {
+	inTempDir(t)
+	writeLog(t, `{"id":"old","ts":"2026-07-10T10:00:00Z","text":"senza file"}`+"\n"+
+		`{"id":"match","ts":"2026-07-10T11:00:00Z","text":"inclusa","files":["a.go"]}`+"\n"+
+		`{"id":"other","ts":"2026-07-10T12:00:00Z","text":"esclusa","files":["b.go"]}`+"\n")
+
+	out := captureStdout(t, func() {
+		if err := cmdLog([]string{"--file", "a.go"}); err != nil {
+			t.Fatalf("cmdLog() error = %v", err)
+		}
+	})
+
+	if !strings.Contains(out, "inclusa") {
+		t.Fatalf("output does not contain matching entry: %q", out)
+	}
+	if strings.Contains(out, "senza file") || strings.Contains(out, "esclusa") {
+		t.Fatalf("output contains non-matching entries: %q", out)
+	}
 }
 
 func TestAddNormalizesAndDeduplicatesTags(t *testing.T) {

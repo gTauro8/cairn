@@ -40,6 +40,20 @@
   rivisti, committati (nessuno dei due aveva committato da solo — fatto dal coordinatore) e
   mergiati in `main` con `--no-ff`, nessun conflitto — 2026-07-10. Note operative sul processo
   in `activeContext.md` § Handoff chiuso
+- [x] Memory bank compilata per intero: `projectBrief.md`, `productContext.md`,
+  `systemPatterns.md` (erano placeholder), `techContext.md` aggiornato — 2026-07-10
+- [x] Push su `main` di tutto il lavoro della sessione (`040a87a..f0f1ac7`, 12 commit) — 2026-07-10
+- [x] Campo `files` sulle note (prerequisito per una futura estensione IDE): `cairn add
+  --files a,b "testo"` (additivo, `omitempty`, nessuna lowercase perché i path sono
+  case-sensitive), `cairn log --file p` per filtrare. L'hook `post-commit` lo popola in
+  automatico dai file effettivamente cambiati nel commit (`git diff-tree --name-only`) — a
+  differenza di `--tags`/`--files` su `add` manuale, qui l'inferenza è sicura per costruzione.
+  Deciso di NON referenziare righe/range specifici: si sposterebbero a ogni refactor
+  diventando silenziosamente sbagliati (rischio di freschezza, §2) — solo file interi.
+  `misplacedFlag()` protegge anche `--files` senza modifiche, essendo già generica su
+  `fs.VisitAll`. Validati: 2 nuovi test automatici, più hook testato in scratch clone
+  (auto-popolamento da commit reale, filtro `--file`, retrocompat su `add` senza `--files`,
+  rifiuto di `--files` dopo il testo) — 2026-07-10
 
 ## In corso
 
@@ -47,10 +61,8 @@
 
 ## Da fare (prossimo)
 
-- [ ] Push su `main` (non ancora fatto)
-- [ ] Estensione IDE (VS Code) per rendere le note visibili accanto al codice — richiede
-  prima di decidere come una nota referenzia file/righe specifici (oggi lo schema ha solo
-  `text`/`tags`); scoping rimandato a un Plan dedicato
+- [ ] Estensione IDE (VS Code) per rendere le note visibili accanto al codice — ora che
+  esiste `files`, si può scoping seriamente; Plan dedicato quando richiesto
 - [ ] Eventuali limature di stile su RFC-0001 (attribuzione, tono) se l'utente le vuole
 
 ## Deferred (non riproporre senza un motivo nuovo)
