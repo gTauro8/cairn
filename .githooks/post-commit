@@ -4,9 +4,14 @@
 # commit: qualunque problema qui produce solo un warning su stderr, mai un errore fatale.
 
 MSG=$(git log -1 --format=%B)
-TRAILERS=$(printf '%s\n' "$MSG" | git interpret-trailers --parse 2>/dev/null)
 
-NOTE_FLAG=$(printf '%s\n' "$TRAILERS" | grep -i '^Cairn-Note:' | sed 's/^[^:]*: *//' | tr '[:upper:]' '[:lower:]')
+# Nota: NON usiamo "git interpret-trailers --parse" per il rilevamento. Quel
+# comando riconosce solo l'ultimo paragrafo contiguo del messaggio come blocco
+# trailer: se c'e' una riga vuota tra "Cairn-Tags:" e un trailer successivo
+# (es. "Co-Authored-By:"), i nostri trailer smettono di essere riconosciuti e
+# la nota si perde silenziosamente (scoperto in dogfooding reale il
+# 2026-07-10). Cerchiamo quindi le righe Cairn-* ovunque nel messaggio.
+NOTE_FLAG=$(printf '%s\n' "$MSG" | grep -i '^Cairn-Note:' | head -1 | sed 's/^[^:]*: *//' | tr '[:upper:]' '[:lower:]')
 if [ "$NOTE_FLAG" != "true" ] && [ "$NOTE_FLAG" != "yes" ]; then
     exit 0
 fi
@@ -30,7 +35,7 @@ SUBJECT=$(git log -1 --format=%s)
 SHORT_HASH=$(git log -1 --format=%h)
 TEXT="$SUBJECT (commit $SHORT_HASH)"
 
-TAGS=$(printf '%s\n' "$TRAILERS" | grep -i '^Cairn-Tags:' | sed 's/^[^:]*: *//' | head -1)
+TAGS=$(printf '%s\n' "$MSG" | grep -i '^Cairn-Tags:' | head -1 | sed 's/^[^:]*: *//')
 if [ -n "$TAGS" ]; then
     TAGS="$TAGS,git"
 else
