@@ -28,6 +28,12 @@
   convenzione in `techContext.md`. Validati in scratch clone: commit con trailer → nota
   corretta; commit senza trailer → nessuna nota; binario `cairn` assente → warning, commit
   comunque riuscito — 2026-07-10
+- [x] Fix hook post-commit: il primo commit reale con questa feature (f7b5f89) NON ha
+  generato la nota attesa — `git interpret-trailers --parse` riconosce solo l'ultimo
+  paragrafo contiguo come blocco trailer, e la riga vuota prima di `Co-Authored-By:` faceva
+  ignorare silenziosamente `Cairn-Note`/`Cairn-Tags`. Scoperto committando la feature stessa,
+  corretto cercando le righe `Cairn-*` ovunque nel messaggio invece di passare da
+  `git interpret-trailers` — 2026-07-10, ridogfoodato con successo sul commit di fix (39771a9)
 
 ## In corso
 

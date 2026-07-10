@@ -48,6 +48,13 @@ Fuori scope (deferred, 2026-07-10): cattura da PR (richiederebbe una GitHub Acti
 hook locale — infrastruttura diversa, si valuta solo se il trailer sui commit si dimostra
 utile nell'uso reale); un comando `cairn hook install` che automatizzi il `git config` sopra.
 
+**Nota tecnica (bug reale trovato in dogfooding, 2026-07-10):** il rilevamento NON usa
+`git interpret-trailers`, cerca le righe `Cairn-Note:`/`Cairn-Tags:` ovunque nel messaggio con
+un grep diretto. `git interpret-trailers --parse` riconosce solo l'ultimo paragrafo contiguo
+come blocco trailer: una riga vuota tra `Cairn-Tags:` e un trailer successivo (es.
+`Co-Authored-By:`) fa ignorare silenziosamente i trailer Cairn-*. Il primo commit reale con
+questa feature (f7b5f89) ha perso la nota per questo motivo, prima del fix (39771a9).
+
 ## Restrizioni ambientali
 
 - [Es. versione minima runtime, OS supportati, rete disponibile in sandbox, ecc.]
