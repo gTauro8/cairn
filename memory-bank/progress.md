@@ -38,4 +38,6 @@
 
 ## Bug noti
 
-- Nessuno: implementazione appena iniziata.
+| Bug | Severità | Workaround |
+|---|---|---|
+| `cairn add "testo" --tags a,b`: se `--tags` è messo *dopo* il testo posizionale, `flag.Parse` si ferma al primo argomento non-flag e `--tags a,b` finisce silenziosamente dentro il testo della nota, senza errore e senza applicare i tag (trovato in dogfooding reale il 2026-07-10) | Bassa/media: nessuna perdita di dati, ma tag persi senza avviso — attrito di cattura silenzioso, il tipo di cosa che il vincolo del §2 chiede di prendere sul serio | Mettere sempre `--tags` prima del testo: `cairn add --tags a,b "testo"` |

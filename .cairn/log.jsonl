@@ -1,0 +1,6 @@
+{"id":"b36a1825bcbdf0c1","ts":"2026-07-10T11:03:08Z","text":"Semplice impazienza con il processo"}
+{"id":"a266e76088feb2e0","ts":"2026-07-10T11:14:37Z","text":"cwd esatta per .cairn, niente risalita alle directory padre come fa git (v0)","tags":["adr","cairn-core"]}
+{"id":"9b51a723ada4892c","ts":"2026-07-10T11:14:37Z","text":"relazioni tipizzate tra note (supersede/deprecated-by) rimandate: richiedono il lookup dell'ID di una nota esistente, attrito contro il vincolo di adozione del §2","tags":["adr","cairn-core","deferred"]}
+{"id":"9f72673a7dec3b3d","ts":"2026-07-10T11:14:37Z","text":"nessun test automatico su cairn, solo validazione manuale finora; rivedere prima del terzo incremento funzionale","tags":["tech-debt"]}
+{"id":"c8273c3f442bbaa5","ts":"2026-07-10T11:14:37Z","text":"pausa sugli incrementi guidati da spec per dogfooding reale di cairn add/log nei prossimi giorni","tags":["process","meta"]}
+{"id":"2b9ce728be4bbe67","ts":"2026-07-10T11:15:27Z","text":"cairn add: se --tags viene messo dopo il testo posizionale, flag.Parse si ferma al primo non-flag e --tags finisce silenziosamente dentro il testo della nota, senza errore e senza applicare i tag","tags":["bug","ux","cairn-core"]}

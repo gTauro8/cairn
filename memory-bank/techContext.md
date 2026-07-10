@@ -27,4 +27,4 @@
 
 | Elemento | Impatto | Quando affrontarlo |
 |---|---|---|
-| [...] | [...] | [...] |
+| Nessun test automatico (solo validazione manuale) | Rischio di regressioni silenziose sugli incrementi futuri | Prima del terzo incremento funzionale, o appena la validazione manuale richiede più di ~2 minuti |
