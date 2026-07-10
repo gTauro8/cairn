@@ -1,20 +1,22 @@
 # Tech Context — Cairn
 
-> Aggiornamento: basso, solo con migrazioni o aggiornamenti di dipendenze. Consultato
-> on-demand, tipicamente in caso di errori di build/runtime.
+> Aggiornamento: basso, solo con migrazioni o aggiornamenti di dipendenze.
 
-## Stack
+## Stack (adottato il 2026-07-10, senza il passaggio di validazione manuale originariamente
+## pianificato — vedi ADR in `systemPatterns.md`)
 
-- Linguaggio: [...]
-- Framework/librerie principali e versioni esatte: [...]
-- Database: [...]
+- Linguaggio: Go
+- Componenti previsti: SQLite, Tree-sitter
+- Non sono state riconsiderate rispetto all'ipotesi iniziale: sono lo stack di partenza per
+  l'implementazione, da correggere in corsa se il vincolo del §2 di `AGENTS.md` segnala attrito.
 
 ## Comandi
 
-- Build: `[...]`
-- Test: `[...]`
-- Lint: `[...]`
-- Run locale: `[...]`
+- Build: `go build ./...`
+- Test: `go test ./...` (nessun test automatizzato ancora presente — solo validazione manuale
+  finora, vedi `progress.md`)
+- Lint: `go vet ./...` (nessun linter esterno introdotto ancora)
+- Run locale: `go run ./cmd/cairn <add|log> [testo]`
 
 ## Restrizioni ambientali
 

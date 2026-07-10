@@ -17,7 +17,7 @@
 
 | Data | Decisione | Alternative scartate | Motivazione |
 |---|---|---|---|
-| [AAAA-MM-GG] | [...] | [...] | [...] |
+| 2026-07-10 | Saltare la validazione manuale pre-codice e passare direttamente all'implementazione in Go | Validazione manuale di 1 settimana (pianificata e poi non eseguita) | [DA COMPILARE — perché hai deciso di saltarla? è la riga più importante di questa tabella] |
 
 ## Anti-pattern noti in questo progetto (cosa NON fare)
 

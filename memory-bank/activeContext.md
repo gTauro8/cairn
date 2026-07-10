@@ -1,29 +1,27 @@
 # Active Context
 
-> Altissima frequenza di aggiornamento. Importato automaticamente in `CLAUDE.md` a ogni
-> sessione: tienilo breve (poche decine di righe) — è memoria di lavoro a breve termine, non
-> un diario.
+> Altissima frequenza di aggiornamento. Importato automaticamente a ogni sessione.
 
 ## Cosa si sta facendo ora
 
-[1-3 frasi sul task in corso]
+Primo pezzo di codice Go implementato: comando `cairn` con `add`/`log` che scrive/legge un log
+append-only di note in `.cairn/log.jsonl` (cwd esatta, niente walk-up — deciso in Plan). Vedi
+`progress.md` per lo stato dettagliato.
 
 ## Ultima decisione presa
 
-[Decisione + motivazione in una riga]
+`.cairn/` viene cercato solo nella cwd esatta, senza risalita delle directory padre (analogo
+a git ma senza walk-up). Motivazione: meno codice in v0, coerente col "niente config" già
+messo fuori scope nella spec del primo pezzo.
 
 ## Prossimo passo
 
-[Il passo immediato successivo — non l'intera roadmap, quella è in `progress.md`]
+Decidere il secondo incremento (es. primo uso reale di `cairn add` per annotare una decisione
+vera del progetto, oppure estendere `log`/`add` prima di quello). Restare in modalità Plan
+prima di scrivere altro codice, come da `AGENTS.md` §5.
 
 ## Blocchi/domande aperte
 
-(nessuno al momento)
-
-## Validazione in corso (dal [DATA DI OGGI])
-
-- Durata: 1 settimana, revisione a fine periodo.
-- Criterio di successo: la cattura avviene spontaneamente, senza promemoria.
-- Criterio di fallimento da tracciare attivamente: ogni volta che ti accorgi di NON aver
-  catturato una decisione quando l'hai presa — scrivila comunque, in ritardo, e annota quanti
-  giorni/ore sono passati. Questo dato conta più delle decisioni catturate al momento giusto.
+- La motivazione dell'ADR del 2026-07-10 in `systemPatterns.md` è ancora in compilazione da
+  parte dell'utente insieme a Giuseppe — non toccare quel file di iniziativa propria finché
+  non è stata inserita.
