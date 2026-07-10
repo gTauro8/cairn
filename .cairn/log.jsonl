@@ -6,3 +6,4 @@
 {"id":"2b9ce728be4bbe67","ts":"2026-07-10T11:15:27Z","text":"cairn add: se --tags viene messo dopo il testo posizionale, flag.Parse si ferma al primo non-flag e --tags finisce silenziosamente dentro il testo della nota, senza errore e senza applicare i tag","tags":["bug","ux","cairn-core"]}
 {"id":"9b844fba39884405","ts":"2026-07-10T11:25:52Z","text":"fix: cairn add ora rileva --tags messo dopo il testo e fallisce con errore esplicito invece di ingoiarlo silenziosamente nel testo (fs.VisitAll sui flag noti del FlagSet)","tags":["bug","ux","cairn-core","fix"]}
 {"id":"e755393532ebf299","ts":"2026-07-10T15:33:17Z","text":"fix: hook post-commit non riconosceva trailer Cairn-* non contigui (commit 39771a9)","tags":["fix","automazione","cairn-core","git"]}
+{"id":"8798852ce254555d","ts":"2026-07-10T15:43:28Z","text":"docs: compila projectBrief, productContext e systemPatterns (erano placeholder) (commit 1623628)","tags":["docs","memory-bank","dogfooding","git"]}
