@@ -1,21 +1,5 @@
 #!/bin/sh
-# Cattura automatica di conoscenza da commit marcati col trailer "Cairn-Note: true".
-# Convenzione documentata in memory-bank/techContext.md. Non deve MAI far fallire il
-# commit: qualunque problema qui produce solo un warning su stderr, mai un errore fatale.
-
-MSG=$(git log -1 --format=%B)
-
-# Nota: NON usiamo "git interpret-trailers --parse" per il rilevamento. Quel
-# comando riconosce solo l'ultimo paragrafo contiguo del messaggio come blocco
-# trailer: se c'e' una riga vuota tra "Cairn-Tags:" e un trailer successivo
-# (es. "Co-Authored-By:"), i nostri trailer smettono di essere riconosciuti e
-# la nota si perde silenziosamente (scoperto in dogfooding reale il
-# 2026-07-10). Cerchiamo quindi le righe Cairn-* ovunque nel messaggio.
-NOTE_FLAG=$(printf '%s\n' "$MSG" | grep -i '^Cairn-Note:' | head -1 | sed 's/^[^:]*: *//' | tr '[:upper:]' '[:lower:]')
-if [ "$NOTE_FLAG" != "true" ] && [ "$NOTE_FLAG" != "yes" ]; then
-    exit 0
-fi
-
+# Installato da "cairn hook install". Non deve mai far fallire il commit.
 CAIRN_BIN=""
 if command -v cairn >/dev/null 2>&1; then
     CAIRN_BIN="cairn"
@@ -31,22 +15,5 @@ if [ -z "$CAIRN_BIN" ]; then
     exit 0
 fi
 
-SUBJECT=$(git log -1 --format=%s)
-SHORT_HASH=$(git log -1 --format=%h)
-TEXT="$SUBJECT (commit $SHORT_HASH)"
-
-TAGS=$(printf '%s\n' "$MSG" | grep -i '^Cairn-Tags:' | head -1 | sed 's/^[^:]*: *//')
-if [ -n "$TAGS" ]; then
-    TAGS="$TAGS,git"
-else
-    TAGS="git"
-fi
-
-# I file cambiati nel commit sono per definizione il contesto della nota:
-# a differenza di --tags/--files su "cairn add" manuale, qui l'inferenza
-# automatica e' sicura, non un'ipotesi rischiosa.
-FILES=$(git diff-tree --no-commit-id --name-only -r "$SHORT_HASH" 2>/dev/null | tr '\n' ',' | sed 's/,$//')
-
-"$CAIRN_BIN" add --tags "$TAGS" --files "$FILES" "$TEXT" || echo "post-commit: cairn add fallito - nota non catturata" >&2
-
+"$CAIRN_BIN" hook run || echo "post-commit: cairn hook run fallito - nota non catturata" >&2
 exit 0

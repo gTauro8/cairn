@@ -1,93 +1,135 @@
-# Kit CLAUDE.md / AGENTS.md modulare — Cairn
+# Cairn
 
-Governance per agenti di coding, pensata per funzionare sia con un solo agente (Claude Code)
-sia con più agenti in parallelo (Claude Code + Codex + Gemini, es. via un ADE come Orca).
+Cairn conserva la conoscenza che vive attorno al codice: decisioni architetturali, alternative
+scartate, vincoli, incidenti e debito tecnico. Le note sono locali al repository, versionate
+con Git e consultabili senza servizi esterni o modelli AI.
 
-## Struttura
+> Stato: v0.1 in preparazione. Il formato e i comandi sono già utilizzabili, ma il criterio
+> principale — cattura e freschezza con attrito quasi zero — è ancora in dogfooding.
 
-```
-.
-├── AGENTS.md                      # FONTE DI VERITÀ condivisa — Codex la legge nativamente,
-│                                   # Gemini CLI via .gemini/settings.json, Claude Code via @import
-├── CLAUDE.md                      # adapter sottile per Claude Code: importa @AGENTS.md
-│                                   # + le poche cose davvero specifiche di Claude Code
-├── .claude/
-│   ├── settings.json               # hook PreToolUse: blocca comandi distruttivi (solo Claude Code)
-│   └── rules/
-│       ├── security.md            # meccanismo dell'hook + nota "non protegge Codex/Gemini"
-│       └── multi-agent.md         # ruolo di Claude Code (coordinatore/worker) nell'orchestrazione
-├── .gemini/
-│   └── settings.json               # dice a Gemini CLI di leggere AGENTS.md invece di GEMINI.md
-└── memory-bank/
-    ├── projectBrief.md            # statico — requisiti e confini del progetto
-    ├── productContext.md          # bassa frequenza — perché esiste il prodotto
-    ├── systemPatterns.md          # media frequenza — architettura e pattern obbligatori
-    ├── techContext.md             # bassa frequenza — stack, comandi, debito tecnico
-    ├── activeContext.md           # ALTA frequenza — stato della sessione corrente (importato)
-    └── progress.md                # ALTA frequenza — avanzamento e bug noti (importato)
+## Cosa non è
+
+Cairn non è un chatbot, un framework AI, un vector database o un sistema di memoria per
+agenti. Umani, agenti, IDE e CI sono client di pari livello dello stesso log append-only.
+
+## Build locale
+
+Richiede Go 1.25 o successivo e Git.
+
+```sh
+make build
+./cairn version
 ```
 
-## Come funziona la condivisione tra i tre agenti
+Il binario risultante è `./cairn`. Per usare l'hook Git, lascia il binario nella root del
+repository oppure installalo in una directory presente nel `PATH`.
 
-| Agente | Come legge `AGENTS.md` |
-|---|---|
-| **Codex** | Nativamente, senza configurazione. |
-| **Gemini CLI** | Tramite `.gemini/settings.json` (già incluso in questo kit), che gli dice di usare `AGENTS.md` come file di contesto al posto del suo `GEMINI.md` di default. |
-| **Claude Code** | Tramite `@AGENTS.md` in cima a `CLAUDE.md`. |
+## Quick start
 
-**Regola d'oro anti-drift:** le regole vere si scrivono **solo** in `AGENTS.md`. `CLAUDE.md` e
-`.claude/rules/*.md` aggiungono esclusivamente ciò che è genuinamente specifico di Claude Code
-(l'hook, il comportamento dopo `/compact`, il ruolo nell'orchestrazione). Se ti accorgi di
-scrivere la stessa regola in due posti, quella regola andava in `AGENTS.md`.
+Registra una decisione manuale:
 
-## Come iniziare
+```sh
+cairn add --tags architecture --files cmd/cairn/main.go "JSONL resta lo storage della v0.1"
+```
 
-1. Copia l'intera struttura nella radice del repo di Cairn.
-2. Compila `AGENTS.md` e i sei file in `memory-bank/` con i dati reali del progetto —
-   sostituisci i placeholder `[...]`.
-3. **Non creare un file `GEMINI.md`** nella stessa cartella: se esiste insieme ad `AGENTS.md`,
-   Gemini CLI dà precedenza a `GEMINI.md` e ignora la configurazione in `.gemini/settings.json`.
-4. Committa tutto in Git.
+Consulta tutte le note o applica filtri combinabili:
 
-## Come lavorare con Claude Code + Codex + Gemini in parallelo (es. con Orca)
+```sh
+cairn log
+cairn log --tag architecture
+cairn log --file cmd/cairn/main.go
+cairn log --tag architecture --file cmd/cairn/main.go
+```
 
-1. **Login una tantum** in ciascun CLI sulla tua macchina (`claude`, `codex`, `gemini`) — gli
-   ADE come Orca usano le tue sottoscrizioni già configurate, non serve un account separato.
-2. **Un worktree Git per sottotask**, non per agente fisso: se oggi tocca a Codex il modulo X
-   e domani a Gemini il modulo Y, ognuno lavora nel proprio worktree isolato.
-3. **Scegli un coordinatore** per lo spec corrente (di norma Claude Code, che segue
-   `.claude/rules/multi-agent.md`). Il coordinatore scompone lo spec in sottotask con
-   dipendenze e li assegna, invece di far lavorare tutti e tre sullo stesso file
-   contemporaneamente.
-4. **`memory-bank/activeContext.md` e `progress.md` li scrive solo il coordinatore**, dopo il
-   merge di ciascun worktree — gli altri due agenti li trattano come sola lettura durante il
-   loro sottotask (regola in `AGENTS.md` §5).
-5. **Handoff esplicito**: quando un sottotask passa da un agente all'altro, chi lo consegna
-   scrive un blocco "Handoff" in `activeContext.md` (da chi, a chi, cosa aspettarsi, cosa non
-   toccare) prima che l'altro agente parta.
-6. **Gate umano obbligatorio** prima di: merge in `main`, modifiche a `systemPatterns.md`,
-   qualunque azione tra i divieti di `AGENTS.md` §4 — indipendentemente da quale agente la
-   propone.
-7. **La sicurezza non è automaticamente condivisa tra i tre.** L'hook che blocca i comandi
-   distruttivi in questo kit vale solo per Claude Code. Se dai a Codex o Gemini accesso a
-   shell/file, replica lo stesso divieto con il meccanismo di sandboxing/permessi proprio di
-   ciascuno strumento — controlla la loro documentazione, non riusare la configurazione di
-   Claude Code assumendo che valga anche per loro.
+Per IDE, CI e altri client è disponibile l'output JSON Lines originale:
 
-## Perché questa struttura
+```sh
+cairn log --json
+```
 
-- `AGENTS.md` come standard cross-tool evita la deriva tipica del mantenere più file di
-  istruzioni paralleli che iniziano a divergere: una fonte di verità, adapter sottili per
-  strumento.
-- I sei file di `memory-bank/` restano divisi per **frequenza di aggiornamento**: solo i due
-  "caldi" (`activeContext.md`, `progress.md`) vengono importati automaticamente; gli altri
-  quattro si leggono on-demand.
-- I divieti di sicurezza sono raddoppiati con un controllo deterministico (hook) per lo
-  strumento che lo supporta in questo kit (Claude Code): un'istruzione in un prompt è
-  probabilistica, un hook con `exit 2` no.
+Verifica integrità e freschezza deterministica:
 
-## Cosa non è incluso (di proposito)
+```sh
+cairn check
+```
 
-L'idea di un hub di telemetria/osservabilità che intercetta gli span degli agenti e li instrada
-verso APM esistenti (Datadog, Honeycomb, ecc.) è un'estensione infrastrutturale separata dalla
-governance di base — non inclusa qui. Se ti serve davvero, la strutturo come progetto a sé.
+`check` restituisce un exit code non-zero se trova JSON non valido, campi obbligatori vuoti,
+un riferimento a un file inesistente oppure una nota con `source: git` priva di commit. Non
+riscrive mai il log e non tenta di indovinare rinomine o obsolescenza semantica.
+
+## Cattura da commit Git
+
+Installa l'hook dalla root esatta del repository:
+
+```sh
+cairn hook install
+```
+
+Il comando è idempotente. Non sovrascrive un `core.hooksPath` diverso o un hook `post-commit`
+personalizzato: in quei casi si ferma e lascia la configurazione invariata.
+
+Marca soltanto i commit che contengono conoscenza da conservare:
+
+```text
+refactor: separa il parsing dalla persistenza
+
+La separazione mantiene sostituibile il formato senza cambiare la CLI.
+
+Cairn-Note: true
+Cairn-Tags: architecture,storage
+```
+
+L'hook crea una nota con:
+
+- testo formato dal subject e dall'hash corto;
+- tag dichiarati più `git`;
+- file modificati dal commit;
+- `source: git` e hash completo in `commit`.
+
+I commit senza `Cairn-Note: true` o `Cairn-Note: yes` restano silenziosi. L'hook non fa mai
+fallire un commit: se Cairn non è disponibile emette soltanto un warning.
+
+### Conseguenza di `post-commit`
+
+La nota nasce immediatamente dopo il commit che l'ha generata, quindi la modifica a
+`.cairn/log.jsonl` non appartiene a quel commit: verrà versionata nel commit successivo. È un
+compromesso intenzionalmente visibile durante il dogfooding; se causa note dimenticate o
+working tree perennemente sporchi, il meccanismo dovrà essere rivisto prima della v1.
+
+## Formato dei dati
+
+Le note vivono in `.cairn/log.jsonl`, una riga JSON per nota. I campi correnti sono:
+
+```json
+{"id":"a1b2c3","ts":"2026-07-15T10:00:00Z","text":"decisione","tags":["architecture"],"files":["main.go"],"source":"manual","commit":""}
+```
+
+`id`, `ts` e `text` sono obbligatori. Gli altri campi sono additivi e opzionali, così le
+versioni nuove non richiedono migrazioni delle righe esistenti. Le note manuali usano
+`source: manual`; l'hook usa `source: git` e valorizza `commit`.
+
+Cairn cerca `.cairn/` soltanto nella directory corrente: non risale implicitamente alle
+directory padre. Esegui quindi i comandi dalla root del progetto.
+
+## Sviluppo
+
+```sh
+make verify
+```
+
+Esegue test, `go vet` e build. La CI ripete gli stessi controlli su Linux e macOS. La procedura
+di release è documentata in [RELEASING.md](RELEASING.md); il protocollo di validazione reale
+è in [memory-bank/dogfooding-v0.1.md](memory-bank/dogfooding-v0.1.md).
+
+## Limiti attuali
+
+- nessuna relazione tipizzata tra note;
+- nessuna ricerca full-text o UI IDE;
+- hook Git basato su shell POSIX, quindi Windows non è ancora supportato;
+- file rinominati o eliminati vengono segnalati da `cairn check` e richiedono valutazione
+  umana;
+- nessun server, database, sincronizzazione cloud o dipendenza da LLM.
+
+## Licenza
+
+Apache License 2.0. Vedi [LICENSE](LICENSE).

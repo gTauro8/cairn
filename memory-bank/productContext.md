@@ -29,13 +29,16 @@ cresce per paura di toccare codice "di cui non si capisce il senso".
   `.cairn/log.jsonl` nella cwd esatta del progetto.
 - **Cattura automatica da commit:** commit con trailer `Cairn-Note: true` (+ `Cairn-Tags:`
   opzionale) → hook `post-commit` genera la nota da solo, nessun comando aggiuntivo.
-- **Consultazione:** `cairn log` / `cairn log --tag x` → lettura testuale, filtrabile per tag.
+- **Consultazione:** `cairn log` / `cairn log --tag x` / `cairn log --file p` → lettura
+  testuale filtrabile; `--json` espone lo stesso log a IDE, CI e agenti.
+- **Freschezza deterministica:** `cairn check` segnala log corrotti, campi obbligatori vuoti e
+  riferimenti a file mancanti senza modificare i dati.
 
 ## Metriche di successo
 
-- Qualitativa (nessuna metrica quantitativa ancora raccolta): una decisione presa durante una
-  sessione di lavoro viene catturata in quella stessa sessione, non rimandata a "dopo" — il
-  criterio è osservare se l'attrito reale fa saltare l'abitudine (vincolo AGENTS.md §2).
+- Il protocollo misurabile è in `memory-bank/dogfooding-v0.1.md`: almeno 10 sessioni su 14
+  giorni, con soglie per cattura nella stessa sessione, consultazioni utili, freschezza e
+  abbandono per attrito. Non è ancora iniziato.
 - Segnale negativo da cercare attivamente: righe `.cairn/log.jsonl` che si accumulano senza
   mai essere consultate (`cairn log --tag` mai usato) indicherebbe cattura senza freschezza —
   non ancora osservato, da monitorare mano a mano che le note aumentano.

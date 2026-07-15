@@ -12,10 +12,11 @@ directory padre). Nessun server, nessun database: SQLite e Tree-sitter restano n
 ipotizzato in `techContext.md` ma non sono ancora stati introdotti — la CLI a file piatto
 basta finché non emerge un bisogno reale (query complesse, concorrenza) che li giustifichi.
 
-Cattura automatica opzionale via hook git (`.githooks/post-commit`, shell POSIX): riconosce il
-trailer `Cairn-Note: true` in un commit e invoca il binario `cairn` già esistente — nessuna
-duplicazione della logica di scrittura, il hook è solo un client aggiuntivo dello stesso
-comando `add` che userebbe un umano.
+Cattura automatica opzionale via hook Git (`.githooks/post-commit`, wrapper shell POSIX): lo
+script individua il binario e delega a `cairn hook run`; parsing dei trailer, raccolta dei file
+e provenienza vivono nel binario Go, che riusa direttamente la stessa logica di `add`. Il
+wrapper converte ogni errore in warning e non può far fallire il commit. `cairn hook install`
+installa/configura il wrapper senza sovrascrivere hook o `core.hooksPath` differenti.
 
 ## Pattern obbligatori
 
@@ -45,6 +46,7 @@ comando `add` che userebbe un umano.
 | 2026-07-10 | Cattura automatica solo da commit esplicitamente marcati (trailer `Cairn-Note: true`), non mirror di ogni commit | Mirror di ogni commit; cattura da PR (GitHub Action) | Git già versiona ogni commit — mirrorarli tutti sarebbe rumore, non conoscenza (visione in AGENTS.md §1). La cattura da PR è infrastruttura diversa (CI, non un hook locale), rimandata finché il trailer sui commit non dimostra di funzionare nell'uso reale. |
 | 2026-07-10 | Rilevamento dei trailer `Cairn-*` via grep diretto sul messaggio, non via `git interpret-trailers` | `git interpret-trailers --parse` | Quel comando riconosce solo l'ultimo paragrafo contiguo come blocco trailer: una riga vuota prima di `Co-Authored-By:` faceva ignorare silenziosamente `Cairn-Note`/`Cairn-Tags`, con perdita di dati scoperta solo committando la feature stessa (vedi Anti-pattern sotto). |
 | 2026-07-10 | Campo `files` sulle note riferisce solo file interi, mai righe/range specifici | Riferimenti a riga/range per un'eventuale estensione IDE | Un numero di riga si sposta a ogni refactor e diventerebbe silenziosamente sbagliato — rischio di freschezza (§2) peggiore del non avere il riferimento. Popolato manualmente su `cairn add --files`, automaticamente dall'hook `post-commit` (i file del commit sono per definizione il contesto, inferenza sicura). |
+| 2026-07-15 | Logica dell'hook nel binario Go; `post-commit` ridotto a wrapper installabile e non bloccante | Generare e mantenere l'intero script shell; configurazione manuale per clone | Una sola implementazione del parsing evita drift e dipendenze da `grep`/`sed`; `hook install` riduce l'attrito ma rifiuta conflitti invece di sovrascrivere configurazioni dell'utente. Il compromesso `post-commit` lascia il log modificato fino al commit successivo e va misurato nel dogfooding. |
 
 ## Anti-pattern noti in questo progetto (cosa NON fare)
 
@@ -53,8 +55,9 @@ comando `add` che userebbe un umano.
   ciò che è marcato esplicitamente come degno di nota.
 - Non usare `git interpret-trailers --parse` per rilevare i trailer `Cairn-*` se nel messaggio
   possono comparire altri trailer dopo una riga vuota (es. `Co-Authored-By:`): riconosce solo
-  l'ultimo paragrafo contiguo e ignora silenziosamente tutto il resto. Bug reale, corretto nel
-  commit `39771a9` — vedi anche `techContext.md`.
+  l'ultimo paragrafo contiguo e ignora silenziosamente tutto il resto. Il parser Go cerca le
+  righe `Cairn-*` ovunque nel messaggio. Bug reale, corretto originariamente nel commit
+  `39771a9` — vedi anche `techContext.md`.
 - Non introdurre relazioni tipizzate tra note "per completezza dello schema": vedi ADR sopra,
   vanno introdotte solo a fronte di un bisogno concreto osservato nell'uso reale.
 - Non assumere che un agente worker (Codex/Gemini) committi da solo sul proprio branch anche

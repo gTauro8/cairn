@@ -4,16 +4,19 @@
 
 ## Cosa si sta facendo ora
 
-Sessione pushata su `main` (`040a87a..f0f1ac7`), memory bank compilata per intero, e appena
-aggiunto il campo `files` alle note (prerequisito per l'estensione IDE rimandata) — vedi
-`progress.md` per i dettagli. Nessun task di codice aperto al momento.
+Blocco tecnico v0.1 completato e pronto per il commit su `main`: `cairn hook
+install/run`, wrapper `post-commit` minimale, `cairn version`, README di prodotto, licenza
+Apache-2.0, Makefile/release cross-platform, CI macOS/Linux, changelog, procedura di release e
+protocollo di dogfooding. `make verify` e quattro cross-build verdi; onboarding validato
+end-to-end in scratch con commit marcato e non marcato. Il gate al commit è stato ricevuto,
+ma il sandbox corrente non può creare `.git/index.lock`; nessun file è stato staged.
 
 ## Ultima decisione presa
 
-`files` referenzia solo file interi, mai righe/range specifici: un numero di riga si sposta a
-ogni refactor e diventerebbe silenziosamente sbagliato — rischio di freschezza (§2) peggiore
-del non avere il riferimento affatto. Popolato manualmente via `--files` su `cairn add`, e in
-automatico dall'hook `post-commit` (i file del commit sono per definizione il contesto).
+La logica di cattura Git vive ora nel binario Go (`cairn hook run`); lo script installato è un
+wrapper POSIX stabile che converte ogni errore in warning per non bloccare mai un commit.
+`hook install` rifiuta di sovrascrivere configurazioni o hook diversi: l'alternativa di
+generare l'intero hook shell avrebbe duplicato la logica e aumentato il rischio di drift.
 
 ## Handoff chiuso — 2026-07-10, Codex e Gemini → main
 
@@ -44,10 +47,13 @@ Primo dispatch multi-agente del progetto, portato a termine. Note operative per 
 
 ## Prossimo passo
 
-Nessun task di codice aperto. In sospeso: eventuali limature di stile sull'RFC-0001
-(attribuzione, tono) se l'utente le vuole; scoping dell'estensione IDE quando richiesto (ora
-sbloccato da `files`).
+Eseguire il commit autorizzato da un ambiente con scrittura su `.git`, escludendo `.DS_Store`,
+poi avviare il dogfooding: almeno 10 sessioni su 14 giorni, secondo
+`memory-bank/dogfooding-v0.1.md`. Nessuna estensione IDE e nessuna release v0.1.0 prima
+dell'esito.
 
 ## Blocchi/domande aperte
 
-- Nessuno.
+- Il sandbox della sessione consente di leggere `.git` ma non di creare `.git/index.lock`:
+  `git add` fallisce prima di modificare l'indice. Serve un terminale con permesso Git.
+- Dogfooding non iniziato; v0.1.0 non va dichiarata rilasciata prima dell'esito.

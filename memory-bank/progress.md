@@ -54,6 +54,33 @@
   `fs.VisitAll`. Validati: 2 nuovi test automatici, più hook testato in scratch clone
   (auto-popolamento da commit reale, filtro `--file`, retrocompat su `add` senza `--files`,
   rifiuto di `--files` dopo il testo) — 2026-07-10
+- [x] Primo incremento v0.1: `cairn log --json` emette le righe JSONL originali complete e
+  resta combinabile con `--tag`/`--file`; `cairn check` accumula e segnala JSON non valido,
+  campi obbligatori (`id`, `ts`, `text`) mancanti/vuoti e file referenziati inesistenti, con
+  exit non-zero senza modificare il log. Tre nuovi test automatici; build, vet, test e check
+  sul log reale verdi — 2026-07-15, modifiche ancora da committare
+- [x] Provenienza strutturata additiva: campi opzionali `source`/`commit`; le nuove note
+  manuali ricevono `source: manual`, mentre l'hook passa `source: git` e l'hash completo del
+  commit tramite i nuovi flag di `cairn add`. `cairn check` segnala `source: git` senza
+  `commit`, lasciando valide le note legacy. Due nuovi test automatici; build/vet/test verdi;
+  hook validato con commit reale in scratch e hash corrispondente — 2026-07-15, modifiche
+  ancora da committare
+- [x] Onboarding v0.1: `cairn hook install` idempotente dalla root Git, con rifiuto sicuro di
+  `core.hooksPath` o `post-commit` preesistenti e diversi. Parsing/cattura spostati in
+  `cairn hook run`; lo script versionato è un wrapper minimale che non blocca mai il commit.
+  Test automatici per installazione, idempotenza, conflitti, parsing e cattura — 2026-07-15
+- [x] README riscritto come documentazione del prodotto; aggiunti Apache-2.0, `CHANGELOG.md`,
+  `RELEASING.md`, `cairn version`, Makefile con build riproducibili/cross-build e workflow CI
+  macOS/Linux (`actions/checkout@v6`, `actions/setup-go@v6`) — 2026-07-15
+- [x] Protocollo di dogfooding v0.1 definito: almeno 10 sessioni/14 giorni, criteri misurabili
+  per cattura, consultazione, freschezza e attrito; estensione IDE dietro gate empirico —
+  `memory-bank/dogfooding-v0.1.md`, 2026-07-15
+- [x] Validazione locale completa del blocco v0.1: `make verify`, quattro cross-build
+  macOS/Linux amd64/arm64, versione `v0.1.0` incorporata e scratch end-to-end (`hook install`,
+  commit non marcato silenzioso, commit marcato con provenienza/file/tag corretti, `check`
+  verde) — 2026-07-15
+- [x] Gate umano ricevuto e `systemPatterns.md` sincronizzato col refactoring dell'hook —
+  2026-07-15
 
 ## In corso
 
@@ -61,8 +88,11 @@
 
 ## Da fare (prossimo)
 
-- [ ] Estensione IDE (VS Code) per rendere le note visibili accanto al codice — ora che
-  esiste `files`, si può scoping seriamente; Plan dedicato quando richiesto
+- [ ] Commit su `main` autorizzato ma bloccato dal sandbox (`.git/index.lock` non scrivibile):
+  eseguirlo da un terminale con permesso Git, escludendo `.DS_Store`
+- [ ] Eseguire il dogfooding v0.1 (10 sessioni su 14 giorni) e registrarne l'esito
+- [ ] Estensione IDE (VS Code) solo se il dogfooding mostra utilità delle note ma scarsa
+  discoverability accanto al codice
 - [ ] Eventuali limature di stile su RFC-0001 (attribuzione, tono) se l'utente le vuole
 
 ## Deferred (non riproporre senza un motivo nuovo)
